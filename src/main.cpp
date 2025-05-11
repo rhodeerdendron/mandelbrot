@@ -177,17 +177,17 @@ int main()
             std::string_view sv{strbuf, sizeof(strbuf)};
             Texture strtex = font.render_text_fast_bitmap(sv, GL_RED);
             strtex.use();
+            strtex.generate_mipmap();
 
             // map red channel to white
             const GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
             glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle_mask);
-            strtex.generate_mipmap();
 
             // blit texture to screen, top left
             screen.get_rendertarget().render_texture(
                 strtex,
-                screen.width() - strtex.get_width(), 0,
-                strtex.get_width(), strtex.get_height(),
+                screen.width() - strtex.width(), 0,
+                strtex.width(), strtex.height(),
                 -0.5f);
         }
 
@@ -200,17 +200,17 @@ int main()
             std::string_view sv{strbuf, sizeof(strbuf)};
             Texture strtex = font.render_text_fast_bitmap(sv, GL_RED);
             strtex.use();
+            strtex.generate_mipmap();
 
             // map red channel to white
             const GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
             glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle_mask);
-            strtex.generate_mipmap();
 
             // blit texture to screen, top left
             screen.get_rendertarget().render_texture(
                 strtex,
-                screen.width() - strtex.get_width(), 22,
-                strtex.get_width(), strtex.get_height(),
+                screen.width() - strtex.width(), 22,
+                strtex.width(), strtex.height(),
                 -0.5f);
         }
 

@@ -33,7 +33,7 @@ public:
     inline int width (void) const { return m_width; }
     inline int height(void) const { return m_height; }
 
-    inline GLuint fbo(void) const { return m_framebufferID; }
+    inline GLuint fbo(void) const { return m_fbo; }
 
     inline       Texture& color_texture(void)       { return m_color_texture; }
     inline const Texture& color_texture(void) const { return m_color_texture; }
@@ -44,8 +44,6 @@ public:
     void clear(void);
 
     // render the given texture(s) onto this RenderTarget
-    // pass 0 for either color or depth texture to skip this texture
-    // passing std::nullopt as the program will perform a direct copy
     void render_texture(
         const Texture& texture,
         int x, int y, // position, in screen-space (x=[0,w) and y=[0,h))
@@ -54,7 +52,7 @@ public:
 
 private:
     int m_width = 0, m_height = 0;
-    GLuint m_framebufferID = 0;
+    GLuint m_fbo = 0;
     Texture m_color_texture, m_depth_stencil_texture;
 };
 

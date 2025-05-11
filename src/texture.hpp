@@ -33,10 +33,10 @@ public:
     // glGenerateMipmap
     void generate_mipmap(void);
 
-    GLuint get_id(void) const { return m_id; }
-    GLint get_internal_format(void) const { return m_internal_format; }
-    uint32_t get_width(void) const { return m_width; }
-    uint32_t get_height(void) const { return m_height; }
+    GLuint id(void) const { return m_id; }
+    GLint internal_format(void) const { return m_internal_format; }
+    uint32_t width(void) const { return m_width; }
+    uint32_t height(void) const { return m_height; }
 
 private:
     GLuint m_id = 0;

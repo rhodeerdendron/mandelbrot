@@ -70,7 +70,7 @@ RenderTarget::RenderTarget(int width, int height) :
 
 // this is the *actual* constructor
 RenderTarget::RenderTarget(int width, int height, GLuint fbo) :
-    m_framebufferID(fbo),
+    m_fbo(fbo),
     m_width(width), m_height(height),
     m_color_texture(GL_RGB),
     m_depth_stencil_texture(GL_DEPTH24_STENCIL8)
@@ -84,12 +84,12 @@ RenderTarget::RenderTarget(int width, int height, GLuint fbo) :
     m_color_texture.use();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_color_texture.get_id(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_color_texture.id(), 0);
     // depth/stencil texture
     m_depth_stencil_texture.use();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depth_stencil_texture.get_id(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depth_stencil_texture.id(), 0);
 
     // trigger resize() to create texture attachments
     m_width = -1; m_height = -1;
@@ -99,13 +99,13 @@ RenderTarget::RenderTarget(int width, int height, GLuint fbo) :
 RenderTarget::~RenderTarget(void)
 {
     // if this isn't the default framebuffer (fbo 0), delete
-    if (m_framebufferID != 0)
-        glDeleteFramebuffers(1, &m_framebufferID);
+    if (m_fbo != 0)
+        glDeleteFramebuffers(1, &m_fbo);
 }
 
 RenderTarget::RenderTarget(RenderTarget&& rhs) :
     m_width(rhs.m_width), m_height(rhs.m_height),
-    m_framebufferID(std::exchange(rhs.m_framebufferID, 0)),
+    m_fbo(std::exchange(rhs.m_fbo, 0)),
     m_color_texture(std::move(rhs.m_color_texture)),
     m_depth_stencil_texture(std::move(rhs.m_depth_stencil_texture))
 {}
@@ -114,7 +114,7 @@ RenderTarget& RenderTarget::operator=(RenderTarget&& rhs)
     this->~RenderTarget();
     m_width = rhs.m_width;
     m_height = rhs.m_height;
-    m_framebufferID = std::exchange(rhs.m_framebufferID, 0);
+    m_fbo = std::exchange(rhs.m_fbo, 0);
     m_color_texture = std::move(rhs.m_color_texture);
     m_depth_stencil_texture = std::move(rhs.m_depth_stencil_texture);
     return *this;
@@ -185,7 +185,7 @@ void RenderTarget::resize(int width, int height)
 
 void RenderTarget::use(void)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glViewport(0, 0, m_width, m_height);
 }
 

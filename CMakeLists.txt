@@ -75,17 +75,43 @@ target_include_directories(mandelbrot PRIVATE src)
 
 message(STATUS "Locating libraries")
 
-# tell SDL to build its own dependencies
-set(SDL_VENDORED ON)
-set(SDLTTF_VENDORED ON)
+find_package(SDL2)
+if(NOT TARGET SDL2::SDL2)
+    message(STATUS "SDL2 not found, building from source")
+    set(SDL_VENDORED ON) # tell SDL to build its own dependencies
+    add_subdirectory(SDL EXCLUDE_FROM_ALL)
+    message(STATUS "Built SDL2")
+else()
+    message(STATUS "SDL2 found, skipping build from source")
+endif()
+if(NOT TARGET SDL2::SDL2)
+    message(FATAL_ERROR "could not locate SDL2 library")
+endif()
 
-# glew requires an extra step to download source
-execute_process(COMMAND make extensions WORKING_DIRECTORY glew)
+find_package(SDL2_ttf)
+if(NOT TARGET SDL2_ttf::SDL2_ttf)
+    message(STATUS "SDL2_ttf not found, building from source")
+    set(SDLTTF_VENDORED ON)
+    add_subdirectory(SDL_ttf EXCLUDE_FROM_ALL)
+    message(STATUS "Built SDL2_ttf")
+else()
+    message(STATUS "SDL2_ttf found, skipping build from source")
+endif()
+if(NOT TARGET SDL2_ttf::SDL2_ttf)
+    message(FATAL_ERROR "could not locate SDL2_ttf library")
+endif()
 
-add_subdirectory(SDL EXCLUDE_FROM_ALL)
-add_subdirectory(SDL_ttf EXCLUDE_FROM_ALL)
-add_subdirectory(glew/build/cmake EXCLUDE_FROM_ALL)
-
+find_package(glew)
+if(NOT TARGET glew AND NOT TARGET glew::glew)
+    message(STATUS "GLEW not found, building from source")
+    # GLEW requires an extra step to download source
+    execute_process(COMMAND make extensions WORKING_DIRECTORY glew)
+    add_subdirectory(glew/build/cmake EXCLUDE_FROM_ALL)
+    message(STATUS "Built GLEW")
+else()
+    message(STATUS "GLEW found, skipping build from source")
+endif()
+# GLEW provides glew target, but not glew::glew library
 if(TARGET glew AND NOT TARGET glew::glew)
     add_library(glew::glew ALIAS glew)
 endif()
@@ -93,7 +119,7 @@ if(NOT TARGET glew::glew)
     message(FATAL_ERROR "could not locate GLEW library")
 endif()
 
-# opengl is device-specific, cannot be downloaded
+# opengl is device-specific, cannot be built from source
 find_package(OpenGL REQUIRED)
 #target_include_directories(mandelbrot PRIVATE ${OPENGL_INCLDUE_DIRS})
 
